@@ -1,3 +1,6 @@
-.DS_Store
 *.DS_Store
 p12-dev-event.json
+venv/
+local/
+.idea/
+__pycache__/

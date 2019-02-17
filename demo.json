@@ -1,0 +1,19 @@
+{
+  "RequestType": "Create",
+  "StackId": "Automated Deployment",
+  "LogicalResourceId": "2019-02-16",
+  "Debug": "ON",
+  "State": "OFF",
+  "ResourceProperties": {
+      "StackName": "DEV",
+      "MediaLiveAccessRoleArn": "<AMAZON MEDIA LIVE ROLE ARN>",
+      "InputType": "RTP_PUSH",
+      "InputSecurityGroup": [ "#######" ],
+      "Resolutions": [1080, 720, 540, 480, 360, 359, 234, 233],
+      "AdDecisionServerUrl": "http://d2qohgpffhaffh.cloudfront.net/MediaTailor/VASTDemo.xml",
+      "ContentSegmentUrlPrefix": "",
+      "AdSegmentUrlPrefix": "",
+      "TranscodeProfileName": "",
+      "SlateAdUrl": ""
+  }
+}

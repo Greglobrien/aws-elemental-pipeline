@@ -6,6 +6,7 @@ import mediatailor_configuration
 import resource_tools
 import datetime
 import json
+import sys
 
 
 def event_delete(event, context):
@@ -105,7 +106,13 @@ def out_to_file(event, context):
 
 if __name__ == "__main__":
 
-    with open('p12-dev-event.json') as json_file:
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
+    else:
+        filename = input("Please provide an input file: ")
+
+
+    with open(filename) as json_file:
         event = json.load(json_file)
 
     if event['Debug'] == "ON":
