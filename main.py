@@ -63,7 +63,7 @@ def event_create(event, context):
 
     ml_channel = medialive_channel.event_handler(event, context)
     if ml_channel['Status'] == 'SUCCESS':
-        event["ResourceProperties"]["MediaLiveChannelId"] = "%s" % ml_channel['Channel']['Id']
+        event["ResourceProperties"]["MediaLiveChannelId"] = "%s" % ml_channel['ResourceId']
         debug("MediaLive Result: {}".format(ml_channel))
         debug("Event + MediaLive Channel: {}".format(event))
 
@@ -84,8 +84,8 @@ def debug(message):
 
 
 def out_to_file(event, context):
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-    filename = '%s-%s.json' % (event["ResourceProperties"]["StackName"], current_time)
+    current_time = datetime.datetime.now().strftime("%H-%M")
+    filename = '%s-%s_%s.json' % (event["ResourceProperties"]["StackName"], event["LogicalResourceId"], current_time)
     debug('Json Output Filename: %s' % filename)
 
     with open(filename, 'w') as outfile:
@@ -103,10 +103,8 @@ if __name__ == "__main__":
 
     with open(filename) as json_file:
         event = json.load(json_file)
+        debug('Initial Event: %s' % event)
 
-    if event['Debug'] == "ON":
-        print(event)
-        print("######################################################")
     context = 0
 
     if ((event['RequestType'] == 'Create') and (resource_tools.does_exist(event, context) == False)):
