@@ -38,9 +38,7 @@ def event_handler(event, context):
             'Data': {"Exception": str(exp)},
             'ResourceId': None
         }
-    if 'ResponseURL' in event:
-        resource_tools.send(event, context, result['Status'],
-                        result['Data'], result['ResourceId'])
+
     return result
 
 
@@ -343,12 +341,12 @@ def create_live_channel(input_id, channel_name, layers, destinations, arn, media
         audio = get_audio_descriptions(str(str(c['height']) + 'p' + str(c['bitrate'])))
         audio_descriptions.append(audio)
 
-    audio_output = audio_only()
-    outputs.append(audio_output)
+    #audio_output = audio_only()
+    #outputs.append(audio_output)
 
-    only = "only"
-    audio2 = get_audio_descriptions(only)
-    audio_descriptions.append(audio2)
+    #only = "only"
+    #audio2 = get_audio_descriptions(only)
+    #audio_descriptions.append(audio2)
 
     print(outputs)
     print("##############################################")
@@ -461,9 +459,7 @@ def create_live_channel(input_id, channel_name, layers, destinations, arn, media
             'VideoDescriptions': video_descriptions
         }
     )
-    print(json.dumps(channel_resp))
-    channel_id = channel_resp['Channel']['Id']
-    return channel_id
+    return channel_resp
     # return 'true'
 
 

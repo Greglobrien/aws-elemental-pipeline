@@ -8,6 +8,10 @@ import datetime
 import json
 import sys
 
+##NOTES:
+#### Use %s instead of {} when working with Json
+#### https://stackoverflow.com/questions/22296496/add-element-to-a-json-in-python
+
 
 def event_delete(event, context):
     mp_channel = 0
@@ -23,7 +27,6 @@ def event_create(event, context):
 
     mp_channel = mediapackage_channel.event_handler(event, context)
     if mp_channel["Status"] == "SUCCESS":
-        #https://stackoverflow.com/questions/22296496/add-element-to-a-json-in-python
         event["ResourceProperties"]["PackagerPrimaryChannelUrl"] = "%s" % mp_channel["Data"][0]["Url"]
         event["ResourceProperties"]["PackagerPrimaryChannelUsername"] = "%s" % mp_channel["Data"][0]["Username"]
         event["ResourceProperties"]["PackagerPrimaryChannelPassword"] = "%s" % mp_channel["Data"][0]["Password"]
@@ -31,65 +34,52 @@ def event_create(event, context):
         event["ResourceProperties"]["PackagerSecondaryChannelUsername"] = "%s" % mp_channel["Data"][1]["Username"]
         event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = "%s" % mp_channel["Data"][1]["Password"]
         event["ResourceProperties"]["ChannelId"] = "%s" % mp_channel["ResourceId"]
-    if event['Debug'] == "ON":
-        print("-----> Media Package Channel: {}\n".format(mp_channel))
-        print("Event + Packager Info: {}\n".format(event))
-        print("######################################################")
+        debug("Media Package Channel: {}".format(mp_channel))
+        debug("Event + Packager Info: {}".format(event))
 
 
     mp_endpoint = mediapackage_live_endpoint.event_handler(event, context)
     if mp_endpoint["Status"] == "SUCCESS":
         event["ResourceProperties"]["MediaPackageOriginURL"] = "%s" % mp_endpoint["Data"]['OriginEndpointUrl']
         event["ResourceProperties"]["VideoContentSourceUrl"] = "%s" % mp_endpoint["Data"]["OriginEndpointUrl"].replace("index.m3u8", '')
-    if event['Debug'] == "ON":
-        print("-----> Media Endpoint: {}\n".format(mp_endpoint))
-        print("Event + Media Package Origin Endpoint: {}\n".format(event))
-        print("######################################################")
+        debug("Media Endpoint: {}".format(mp_endpoint))
+        debug("Event + Media Package Origin Endpoint: {}".format(event))
 
 
     ml_input = medialive_input.event_handler(event, context)
     if ml_input["Status"] == "SUCCESS":
-        #https://stackoverflow.com/questions/22296496/add-element-to-a-json-in-python
         event["ResourceProperties"]["MediaLiveInputId"] = "%s" % ml_input["Data"]["Input"]["Id"]
-    if event['Debug'] == "ON":
-        print("-----> MediaLive Input: {}\n".format(ml_input))
-        print("Event + Media Live Input Id: {}\n".format(event))
-        print("######################################################")
+        debug("MediaLive Input: {}".format(ml_input))
+        debug("Event + Media Live Input Id: {}".format(event))
 
 
     passwords = resource_tools.ssm_a_password(event, mp_channel)
     if passwords['Status'] == 'SUCCESS':
-        ## Use %s instead of {} when working with Json
         event["ResourceProperties"]["PackagerPrimaryChannelPassword"] = '/medialive/%s-%s-0' % (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
         event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = '/medialive/%s-%s-1' % (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
-    if event['Debug'] == "ON":
-        print("-----> Passwords Result: {}\n".format(passwords))
-        print("Event + Password Params: {}\n".format(event))
-        print("######################################################")
+        debug("Passwords Result: {}".format(passwords))
+        debug("Event + Password Params: {}".format(event))
 
 
     ml_channel = medialive_channel.event_handler(event, context)
     if ml_channel['Status'] == 'SUCCESS':
-        event["ResourceProperties"]["MediaLiveChannelId"] = "%s" % ml_channel["ResourceId"]
-    if event['Debug'] == "ON":
-        print("-----> MediaLive Result: {}\n".format(ml_channel))
-        print("Event + MediaLive Channel: {}\n".format(event))
-        print("######################################################")
+        event["ResourceProperties"]["MediaLiveChannelId"] = "%s" % ml_channel['Channel']['Id']
+        debug("MediaLive Result: {}".format(ml_channel))
+        debug("Event + MediaLive Channel: {}".format(event))
 
 
     mt_config = mediatailor_configuration.event_handler(event, context)
     if mt_config['Status'] == 'SUCCESS':
         event["ResourceProperties"]["MediaTailorHlsUrl"] = "%s" % mt_config["Data"]["HlsConfiguration"]["ManifestEndpointPrefix"]
-
-    debug("-----> MediaTailor Configuration: {}\n".format(mt_config))
-    debug("Event {}\n".format(event))
+        debug("MediaTailor Configuration: {}".format(mt_config))
+        debug("Event {}".format(event))
 
     return event
 
 def debug(message):
     if event['Debug'] == "ON":
-        print(message)
-        print("######################################################")
+        print(('----->  %s') % str(message))
+        print('######################################################\n')
 
 
 
