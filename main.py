@@ -111,7 +111,6 @@ if __name__ == "__main__":
     else:
         filename = input("Please provide an input file: ")
 
-
     with open(filename) as json_file:
         event = json.load(json_file)
 
@@ -120,9 +119,10 @@ if __name__ == "__main__":
         print("######################################################")
     context = 0
 
-    if event['RequestType'] == 'Create':
+    if ((event['RequestType'] == 'Create') and (resource_tools.does_exist(event, context) == False)):
         create = event_create(event, context)
         out_to_file(create, context)
+        print("done")
 
     if event['RequestType'] == 'Delete':
         event_delete(event, context)

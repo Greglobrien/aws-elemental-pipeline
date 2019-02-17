@@ -16,7 +16,7 @@ import string
 import random
 import re
 import time
-
+import sys
 
 def send(event, context, responseStatus, responseData, physicalResourceId):
     responseUrl = event['ResponseURL']
@@ -109,3 +109,15 @@ def ssm_a_password(event, mp_channel):
         )
 
     return result
+
+
+def does_exist(event, context):
+    channel_id = '%s-%s'% (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
+    client = boto3.client('medialive')
+    channel_list = client.list_channels()
+    for channel in channel_list['Channels']:
+        # print("Channel: %s\n" % channel)
+        if (channel_id == channel['Name']):
+            sys.exit("Cannot Overwrite existing Channel!")
+
+    return False
