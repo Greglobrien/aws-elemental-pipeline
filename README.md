@@ -7,6 +7,8 @@ It builds a pipeline that looks like this:
 
 ###Elemental MediaLive -> Elemental MediaPackage -> Elemental MediaTailor
 
-To run this tool simply update the demo json and run the program by adding it as an arguement `$ python main.py demo.json` the python will do the rest.
+Before running this tool make sure to have the AWS cli tool installed with credentials saved
+
+To run this tool simply update the demo json and  run the program by adding it as an arguement `$ python main.py demo.json` the python will do the rest.
 
 Still a lot of work to do on this, including building out the pipeline with MediaStore in place of MediaPackage, so check back from time to time.
