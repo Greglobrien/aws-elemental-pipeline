@@ -65,7 +65,7 @@ def create_channel(mediapackage, event, context, auto_id=True):
             Id=channel_id,
             Description="%s" % event["StackId"]
         )
-        print(json.dumps(response))
+        #print(json.dumps(response))
         attributes = [{
             "Url": response["HlsIngest"]["IngestEndpoints"][0]["Url"],
             "Username": response["HlsIngest"]["IngestEndpoints"][0]["Username"],
@@ -75,10 +75,11 @@ def create_channel(mediapackage, event, context, auto_id=True):
             "Username": response["HlsIngest"]["IngestEndpoints"][1]["Username"],
             "Password": response["HlsIngest"]["IngestEndpoints"][1]["Password"]
         }]
+
         result = {
             'Status': 'SUCCESS',
-            'Data': attributes,
-            'ResourceId': channel_id
+            'Data': response,
+            'ResourceId': attributes
         }
 
     except Exception as ex:

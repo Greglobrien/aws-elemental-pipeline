@@ -79,11 +79,11 @@ def wait_for_input_states(medialive, input_id, states):
 def ssm_a_password(event, mp_channel):
     ssm = boto3.client('ssm')
     if event["RequestType"] == "Create":
-        for index, key in enumerate(mp_channel["Data"]):
+        for index, key in enumerate(mp_channel["Data"]["HlsIngest"]["IngestEndpoints"]):
             response = ssm.put_parameter(
                 Name='/medialive/%s-%s-%s'% (event['ResourceProperties']['StackName'], event["LogicalResourceId"], index),
                 Description='{}'.format(event["LogicalResourceId"]),
-                Value='{}'.format(mp_channel["Data"][index]["Password"]),
+                Value='{}'.format(mp_channel["Data"]["HlsIngest"]["IngestEndpoints"][index]["Password"]),
                 Type='SecureString',
                 KeyId='alias/aws/ssm',
                 Overwrite=True

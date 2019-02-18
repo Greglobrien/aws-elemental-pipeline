@@ -68,18 +68,20 @@ def create_channel(medialive, event, context, auto_id=True):
         channel = create_live_channel(event["ResourceProperties"]["MediaLiveInputId"], channel_id, event["ResourceProperties"]["Resolutions"],
                                          destinations, event["ResourceProperties"]["MediaLiveAccessRoleArn"], medialive)
 
-        #print("MEDIALIVE_CHANNEL %s" % channel)
+        # tags = resource_tools.tags("medialive", event, channel['Channel']['Arn'])
+        # print("TAGS: %s" % tags)
         channel_id = channel['Channel']['Id']
-        #print("MediaLive Channel ID %s" % channel_id)
 
         result = {
             'Status': 'SUCCESS',
             'Data': channel,
             'ResourceId': channel_id
         }
-        #print("MediaLive Result: %s" % result)
+        print("\nResult MediaLive %s" % result)
         # wait until the channel is idle, otherwise the lambda will time out
+
         resource_tools.wait_for_channel_states(medialive, channel_id, ['IDLE'])
+
         if event['State'] == "ON":
             medialive.start_channel(ChannelId=channel_id)
 

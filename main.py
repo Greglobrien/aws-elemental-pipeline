@@ -27,13 +27,14 @@ def event_create(event, context):
 
     mp_channel = mediapackage_channel.event_handler(event, context)
     if mp_channel["Status"] == "SUCCESS":
-        event["ResourceProperties"]["PackagerPrimaryChannelUrl"] = "%s" % mp_channel["Data"][0]["Url"]
-        event["ResourceProperties"]["PackagerPrimaryChannelUsername"] = "%s" % mp_channel["Data"][0]["Username"]
-        event["ResourceProperties"]["PackagerPrimaryChannelPassword"] = "%s" % mp_channel["Data"][0]["Password"]
-        event["ResourceProperties"]["PackagerSecondaryChannelUrl"] = "%s" % mp_channel["Data"][1]["Url"]
-        event["ResourceProperties"]["PackagerSecondaryChannelUsername"] = "%s" % mp_channel["Data"][1]["Username"]
-        event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = "%s" % mp_channel["Data"][1]["Password"]
-        event["ResourceProperties"]["ChannelId"] = "%s" % mp_channel["ResourceId"]
+        event["ResourceProperties"]["PackagerPrimaryChannelUrl"] = "%s" % mp_channel["ResourceId"][0]["Url"]
+        event["ResourceProperties"]["PackagerPrimaryChannelUsername"] = "%s" % mp_channel["ResourceId"][0]["Username"]
+        event["ResourceProperties"]["PackagerPrimaryChannelPassword"] = "%s" % mp_channel["ResourceId"][0]["Password"]
+        event["ResourceProperties"]["PackagerSecondaryChannelUrl"] = "%s" % mp_channel["ResourceId"][1]["Url"]
+        event["ResourceProperties"]["PackagerSecondaryChannelUsername"] = "%s" % mp_channel["ResourceId"][1]["Username"]
+        event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = "%s" % mp_channel["ResourceId"][1]["Password"]
+        event["ResourceProperties"]["ChannelId"] = "%s-%s" % (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
+        event["ResourceProperties"]["MediaPackgeARN"] = "%s" % mp_channel["Data"]["Arn"]
         debug("Media Package Channel: {}".format(mp_channel))
         debug("Event + Packager Info: {}".format(event))
 
@@ -49,6 +50,7 @@ def event_create(event, context):
     ml_input = medialive_input.event_handler(event, context)
     if ml_input["Status"] == "SUCCESS":
         event["ResourceProperties"]["MediaLiveInputId"] = "%s" % ml_input["Data"]["Input"]["Id"]
+        event["ResourceProperties"]["MediaLiveInputARN"] = "%s" % ml_input["Data"]["Input"]["Arn"]
         debug("MediaLive Input: {}".format(ml_input))
         debug("Event + Media Live Input Id: {}".format(event))
 
