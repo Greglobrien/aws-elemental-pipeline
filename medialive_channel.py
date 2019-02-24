@@ -66,32 +66,32 @@ def create_channel(medialive, event, context, auto_id=True):
         }
         resource_tools.debug("ML Destinations are: %s" % destinations)
 
-        channel = create_live_channel(event["ResourceProperties"]["MediaLiveInputId"], channel_id, event["ResourceProperties"]["Resolutions"],
+        response = create_live_channel(event["ResourceProperties"]["MediaLiveInputId"], channel_id, event["ResourceProperties"]["Resolutions"],
                                          destinations, event["ResourceProperties"]["MediaLiveAccessRoleArn"], medialive)
 
-        resource_tools.debug("MediaLive Channel: %s" % channel)
+        resource_tools.debug("MediaLive Channel: %s" % response)
 
-        new_channel_id = channel['Channel']['Id']
+        attributes = response['Channel']['Id']
 
         result = {
             'Status': 'SUCCESS',
-            'Data': channel,
-            'ResourceId': new_channel_id
+            'Attributes': attributes,
+            'Response': response
         }
         resource_tools.debug("ML Result %s" % result)
         # wait until the channel is idle, otherwise the lambda will time out
 
-        resource_tools.wait_for_channel_states(medialive, new_channel_id, ['IDLE'])
+        resource_tools.wait_for_channel_states(medialive, attributes, ['IDLE'])
 
         if event['State'] == "ON":
-            medialive.start_channel(ChannelId=new_channel_id)
+            medialive.start_channel(ChannelId=attributes)
 
     except Exception as ex:
         print(ex)
         result = {
             'Status': 'FAILED',
             'Data': {"Exception": str(ex)},
-            'ResourceId': new_channel_id
+            'ResourceId': attributes
         }
 
     return result

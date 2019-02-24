@@ -51,8 +51,8 @@ def event_create(event, context):
 
     ml_input = medialive_input.event_handler(event, context)
     if ml_input["Status"] == "SUCCESS":
-        event["ResourceProperties"]["MediaLiveInputId"] = "%s" % ml_input["Attributes"]["Id"]
-        event["ResourceProperties"]["MediaLiveInputARN"] = "%s" % ml_input["Attributes"]["Arn"]
+        event["ResourceProperties"]["MediaLiveInputId"] = "%s" % ml_input['Attributes']['Id']
+        event["ResourceProperties"]["MediaLiveInputARN"] = "%s" % ml_input['Attributes']['Arn']
 
         debug("MediaLive Input: {}".format(ml_input))
         debug("Event + Media Live Input Id: {}".format(event))
@@ -69,7 +69,7 @@ def event_create(event, context):
 
     ml_channel = medialive_channel.event_handler(event, context)
     if ml_channel['Status'] == 'SUCCESS':
-        event["ResourceProperties"]["MediaLiveChannelId"] = "%s" % ml_channel['ResourceId']
+        event["ResourceProperties"]["MediaLiveChannelId"] = "%s" % ml_channel['Attributes']
 
         debug("MediaLive Result: {}".format(ml_channel))
         debug("Event + MediaLive Channel: {}".format(event))
