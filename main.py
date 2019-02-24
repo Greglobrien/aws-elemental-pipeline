@@ -35,14 +35,16 @@ def event_create(event, context):
         event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = "%s" % mp_channel["ResourceId"][1]["Password"]
         event["ResourceProperties"]["ChannelId"] = "%s-%s" % (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
         event["ResourceProperties"]["MediaPackgeARN"] = "%s" % mp_channel["Data"]["Arn"]
+
         debug("Media Package Channel: {}".format(mp_channel))
-        debug("Event + Packager Info: {}".format(event))
+        debug("Event + Packager Channel: {}".format(event))
 
 
     mp_endpoint = mediapackage_live_endpoint.event_handler(event, context)
     if mp_endpoint["Status"] == "SUCCESS":
         event["ResourceProperties"]["MediaPackageOriginURL"] = "%s" % mp_endpoint["Data"]['OriginEndpointUrl']
         event["ResourceProperties"]["VideoContentSourceUrl"] = "%s" % mp_endpoint["Data"]["OriginEndpointUrl"].replace("index.m3u8", '')
+
         debug("Media Endpoint: {}".format(mp_endpoint))
         debug("Event + Media Package Origin Endpoint: {}".format(event))
 
@@ -51,6 +53,7 @@ def event_create(event, context):
     if ml_input["Status"] == "SUCCESS":
         event["ResourceProperties"]["MediaLiveInputId"] = "%s" % ml_input["Data"]["Input"]["Id"]
         event["ResourceProperties"]["MediaLiveInputARN"] = "%s" % ml_input["Data"]["Input"]["Arn"]
+
         debug("MediaLive Input: {}".format(ml_input))
         debug("Event + Media Live Input Id: {}".format(event))
 
@@ -59,6 +62,7 @@ def event_create(event, context):
     if passwords['Status'] == 'SUCCESS':
         event["ResourceProperties"]["PackagerPrimaryChannelPassword"] = '/medialive/%s-%s-0' % (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
         event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = '/medialive/%s-%s-1' % (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
+
         debug("Passwords Result: {}".format(passwords))
         debug("Event + Password Params: {}".format(event))
 
@@ -66,13 +70,15 @@ def event_create(event, context):
     ml_channel = medialive_channel.event_handler(event, context)
     if ml_channel['Status'] == 'SUCCESS':
         event["ResourceProperties"]["MediaLiveChannelId"] = "%s" % ml_channel['ResourceId']
+
         debug("MediaLive Result: {}".format(ml_channel))
         debug("Event + MediaLive Channel: {}".format(event))
 
 
     mt_config = mediatailor_configuration.event_handler(event, context)
     if mt_config['Status'] == 'SUCCESS':
-        event["ResourceProperties"]["MediaTailorHlsUrl"] = "%s" % mt_config["Data"]["HlsConfiguration"]["ManifestEndpointPrefix"]
+        event["ResourceProperties"]["MediaTailorHlsUrl"] = "%s" % mt_config['Attributes']
+
         debug("MediaTailor Configuration: {}".format(mt_config))
         debug("Event {}".format(event))
 

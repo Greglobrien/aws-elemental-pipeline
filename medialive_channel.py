@@ -22,7 +22,7 @@ def event_handler(event, context):
     """
     Lambda entry point. Print the event first.
     """
-    print("Event Input: %s" % json.dumps(event))
+    resource_tools.debug("MediaLive Event Input: %s " % event)
     try:
         medialive = boto3.client('medialive')
         if event["RequestType"] == "Create":
@@ -31,6 +31,7 @@ def event_handler(event, context):
             result = update_channel(medialive, event, context)
         elif event["RequestType"] == "Delete":
             result = delete_channel(medialive, event, context)
+
     except Exception as exp:
         print("Exception: %s" % exp)
         result = {
@@ -63,34 +64,34 @@ def create_channel(medialive, event, context, auto_id=True):
             'b_u': event["ResourceProperties"]["PackagerSecondaryChannelUsername"],
             'b_p': event["ResourceProperties"]["PackagerSecondaryChannelPassword"]
         }
-        print("The Destinations are: %s \n" % destinations)
+        resource_tools.debug("ML Destinations are: %s" % destinations)
 
         channel = create_live_channel(event["ResourceProperties"]["MediaLiveInputId"], channel_id, event["ResourceProperties"]["Resolutions"],
                                          destinations, event["ResourceProperties"]["MediaLiveAccessRoleArn"], medialive)
 
-        # tags = resource_tools.tags("medialive", event, channel['Channel']['Arn'])
-        # print("TAGS: %s" % tags)
-        channel_id = channel['Channel']['Id']
+        resource_tools.debug("MediaLive Channel: %s" % channel)
+
+        new_channel_id = channel['Channel']['Id']
 
         result = {
             'Status': 'SUCCESS',
             'Data': channel,
-            'ResourceId': channel_id
+            'ResourceId': new_channel_id
         }
-        print("\nResult MediaLive %s" % result)
+        resource_tools.debug("ML Result %s" % result)
         # wait until the channel is idle, otherwise the lambda will time out
 
-        resource_tools.wait_for_channel_states(medialive, channel_id, ['IDLE'])
+        resource_tools.wait_for_channel_states(medialive, new_channel_id, ['IDLE'])
 
         if event['State'] == "ON":
-            medialive.start_channel(ChannelId=channel_id)
+            medialive.start_channel(ChannelId=new_channel_id)
 
     except Exception as ex:
         print(ex)
         result = {
             'Status': 'FAILED',
             'Data': {"Exception": str(ex)},
-            'ResourceId': channel_id
+            'ResourceId': new_channel_id
         }
 
     return result

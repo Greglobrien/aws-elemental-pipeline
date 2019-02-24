@@ -22,7 +22,7 @@ def event_handler(event, context):
     """
     Lambda entry point. Print the event first.
     """
-    print("Event Input: %s" % json.dumps(event))
+    resource_tools.debug("MediaPackage Live Endpoint Event Input: %s " % event)
     try:
         mediapackage = boto3.client('mediapackage')
         if event["RequestType"] == "Create":
@@ -76,14 +76,15 @@ def create_endpoint(mediapackage, event, context, auto_id=True):
                 }
             }
         )
-        print(json.dumps(response))
+        resource_tools.debug("MediaPackage Live Endpoint: %s " % response)
         outputs = {
             "OriginEndpointUrl": response['Url']
         }
         result = {
             'Status': 'SUCCESS',
             'Data': outputs,
-            'ResourceId': endpoint_id
+            'ResourceId': endpoint_id,
+            'response': response
         }
 
     except Exception as ex:

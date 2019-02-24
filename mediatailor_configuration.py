@@ -21,7 +21,7 @@ def event_handler(event, context):
     """
     Lambda entry point. Print the event first.
     """
-    print("Event Input: %s" % json.dumps(event))
+    resource_tools.debug("MediaTrailor Event Input: %s " % event)
     try:
         mediatailor = boto3.client('mediatailor')
         if event["RequestType"] == "Create":
@@ -72,12 +72,15 @@ def create_configuration(mediatailor, event, context, auto_id=True):
             TranscodeProfileName = event["ResourceProperties"]["TranscodeProfileName"],
             VideoContentSourceUrl = event["ResourceProperties"]["VideoContentSourceUrl"]
         )
-        print(json.dumps(response))
+        resource_tools.debug("MediaTailor Configuration: %s " % response)
+
+        attributes = response["HlsConfiguration"]["ManifestEndpointPrefix"]
+        resource_tools.debug("MediaTailor Attributes: %s " % attributes)
 
         result = {
             'Status': 'SUCCESS',
-            'Data': response,
-            'ResourceId': channel_id
+            'Attributes': attributes,
+            'Response': response
         }
 
     except Exception as ex:

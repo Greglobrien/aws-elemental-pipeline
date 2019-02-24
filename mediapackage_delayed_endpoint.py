@@ -22,7 +22,7 @@ def event_handler(event, context):
     """
     Lambda entry point. Print the event first.
     """
-    print("Event Input: %s" % json.dumps(event))
+    resource_tools.debug("MediaPackage Delayed endpoint Event Input: %s " % event)
     try:
         mediapackage = boto3.client('mediapackage')
         if event["RequestType"] == "Create":
@@ -76,7 +76,9 @@ def create_endpoint(mediapackage, event, context, auto_id=True):
                 }
             }
         )
-        print(json.dumps(response))
+
+        resource_tools.debug("MediaPackage Delayed Endpoint: %s " % response)
+
         outputs = {
             "OriginEndpointUrl": response['Url']
         }
