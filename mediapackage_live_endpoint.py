@@ -77,14 +77,13 @@ def create_endpoint(mediapackage, event, context, auto_id=True):
             }
         )
         resource_tools.debug("MediaPackage Live Endpoint: %s " % response)
-        outputs = {
+        attributes = {
             "OriginEndpointUrl": response['Url']
         }
         result = {
             'Status': 'SUCCESS',
-            'Data': outputs,
-            'ResourceId': endpoint_id,
-            'response': response
+            'Attributes': attributes,
+            'Response': response
         }
 
     except Exception as ex:

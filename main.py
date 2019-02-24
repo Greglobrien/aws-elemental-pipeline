@@ -42,8 +42,8 @@ def event_create(event, context):
 
     mp_endpoint = mediapackage_live_endpoint.event_handler(event, context)
     if mp_endpoint["Status"] == "SUCCESS":
-        event["ResourceProperties"]["MediaPackageOriginURL"] = "%s" % mp_endpoint["Data"]['OriginEndpointUrl']
-        event["ResourceProperties"]["VideoContentSourceUrl"] = "%s" % mp_endpoint["Data"]["OriginEndpointUrl"].replace("index.m3u8", '')
+        event["ResourceProperties"]["MediaPackageOriginURL"] = "%s" % mp_endpoint["Attributes"]['OriginEndpointUrl']
+        event["ResourceProperties"]["VideoContentSourceUrl"] = "%s" % mp_endpoint["Attributes"]["OriginEndpointUrl"].replace("index.m3u8", '')
 
         debug("Media Endpoint: {}".format(mp_endpoint))
         debug("Event + Media Package Origin Endpoint: {}".format(event))
