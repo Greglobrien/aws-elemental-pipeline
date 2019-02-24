@@ -27,14 +27,14 @@ def event_create(event, context):
 
     mp_channel = mediapackage_channel.event_handler(event, context)
     if mp_channel["Status"] == "SUCCESS":
-        event["ResourceProperties"]["PackagerPrimaryChannelUrl"] = "%s" % mp_channel["ResourceId"][0]["Url"]
-        event["ResourceProperties"]["PackagerPrimaryChannelUsername"] = "%s" % mp_channel["ResourceId"][0]["Username"]
-        event["ResourceProperties"]["PackagerPrimaryChannelPassword"] = "%s" % mp_channel["ResourceId"][0]["Password"]
-        event["ResourceProperties"]["PackagerSecondaryChannelUrl"] = "%s" % mp_channel["ResourceId"][1]["Url"]
-        event["ResourceProperties"]["PackagerSecondaryChannelUsername"] = "%s" % mp_channel["ResourceId"][1]["Username"]
-        event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = "%s" % mp_channel["ResourceId"][1]["Password"]
+        event["ResourceProperties"]["PackagerPrimaryChannelUrl"] = "%s" % mp_channel["Attributes"][0]["Url"]
+        event["ResourceProperties"]["PackagerPrimaryChannelUsername"] = "%s" % mp_channel["Attributes"][0]["Username"]
+        event["ResourceProperties"]["PackagerPrimaryChannelPassword"] = "%s" % mp_channel["Attributes"][0]["Password"]
+        event["ResourceProperties"]["PackagerSecondaryChannelUrl"] = "%s" % mp_channel["Attributes"][1]["Url"]
+        event["ResourceProperties"]["PackagerSecondaryChannelUsername"] = "%s" % mp_channel["Attributes"][1]["Username"]
+        event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = "%s" % mp_channel["Attributes"][1]["Password"]
         event["ResourceProperties"]["ChannelId"] = "%s-%s" % (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
-        event["ResourceProperties"]["MediaPackgeARN"] = "%s" % mp_channel["Data"]["Arn"]
+        event["ResourceProperties"]["MediaPackgeARN"] = "%s" % mp_channel["Response"]["Arn"]
 
         debug("Media Package Channel: {}".format(mp_channel))
         debug("Event + Packager Channel: {}".format(event))

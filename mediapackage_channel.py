@@ -78,8 +78,8 @@ def create_channel(mediapackage, event, context, auto_id=True):
 
         result = {
             'Status': 'SUCCESS',
-            'Data': response,
-            'ResourceId': attributes
+            'Attributes': attributes,
+            'Response': response
         }
 
     except Exception as ex:
