@@ -66,10 +66,15 @@ def create_input(medialive, event, context, auto_id=True):
         # wait for the new input to reach detached state
         resource_tools.wait_for_input_states(medialive, response['Input']['Id'], ['DETACHED'])
 
+        attributes = {
+            'Id': response['Input']['Id'],
+            'Arn': response['Input']['Arn']
+        }
+
         result = {
             'Status': 'SUCCESS',
-            'Data': response,
-            'ResourceId': response['Input']['Id']
+            'Attributes': attributes,
+            'Response': response
         }
 
     except Exception as ex:
