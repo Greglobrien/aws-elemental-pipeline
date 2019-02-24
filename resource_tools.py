@@ -51,6 +51,11 @@ def send(event, context, responseStatus, responseData, physicalResourceId):
     return
 
 
+def debug(message):
+    #if event['Debug'] == "ON":
+    print(('----->  %s') % str(message))
+    print('######################################################\n')
+
 def stack_name(event):
     try:
         response = event['ResourceProperties']['StackName']
@@ -88,9 +93,8 @@ def ssm_a_password(event, mp_channel):
                 KeyId='alias/aws/ssm',
                 Overwrite=True
             )
-            if event['Debug'] == 'ON':
-                print(response)
-                print(index, key)
+            debug("SSM_a_Password: %s " % response)
+            print(index, key)
 
             if (index == 1) and (response['ResponseMetadata']['HTTPStatusCode'] == 200):
                 result = {
@@ -121,3 +125,4 @@ def does_exist(event, context):
             sys.exit("Cannot Overwrite existing Channel!")
 
     return False
+
