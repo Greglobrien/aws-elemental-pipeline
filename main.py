@@ -15,12 +15,18 @@ import sys
 
 def event_delete(event, context):
     mp_channel = 0
-    medialive_channel.event_handler(event, context)
-    mediapackage_live_endpoint.event_handler(event, context)
-    mediapackage_channel.event_handler(event, context)
-    medialive_input.event_handler(event, context)
-    resource_tools.ssm_a_password(event, mp_channel)
-    mediatailor_configuration.event_handler(event, context)
+
+    if ('medialive' in event['pipeline']):
+        medialive_channel.event_handler(event, context)
+        medialive_input.event_handler(event, context)
+
+    if ('mediapackage' in event['pipeline']):
+        mediapackage_live_endpoint.event_handler(event, context)
+        mediapackage_channel.event_handler(event, context)
+        resource_tools.ssm_a_password(event, mp_channel)
+
+    if ('mediatailor' in event['pipeline']):
+        mediatailor_configuration.event_handler(event, context)
 
 
 def event_create(event, context):
@@ -32,11 +38,9 @@ def event_create(event, context):
             event["ResourceProperties"]["ChannelId"] = "%s-%s" % (
                 event['ResourceProperties']['StackName'], event["LogicalResourceId"]
             )
-            event["ResourceProperties"]["MediaPackgeARN"] = "%s" % mp_channel["Response"]["Arn"]
-
+            event["ResourceProperties"]["MP_ARN"] = "%s" % mp_channel["Response"]["Arn"]
             debug("MediaPackage Channel: {}".format(mp_channel))
             debug("Event + MediaPackage: {}".format(event))
-
 
         passwords = resource_tools.ssm_a_password(event, context)
         if passwords['Status'] == 'SUCCESS':
@@ -46,15 +50,17 @@ def event_create(event, context):
             event["ResourceProperties"]["MP_Endpoints"][1]["Password"] = '/medialive/%s-%s-1' % (
                 event['ResourceProperties']['StackName'], event["LogicalResourceId"]
             )
-
             debug("Passwords Result: {}".format(passwords))
             debug("Event + Password Params: {}".format(event))
 
         mp_endpoint = mediapackage_live_endpoint.event_handler(event, context)
         if mp_endpoint["Status"] == "SUCCESS":
-            event["ResourceProperties"]["MediaPackageOriginURL"] = "%s" % mp_endpoint["Attributes"]['OriginEndpointUrl']
-            event["ResourceProperties"]["VideoContentSourceUrl"] = "%s" % mp_endpoint["Attributes"]["OriginEndpointUrl"].replace("index.m3u8", '')
-
+            event["ResourceProperties"]["MediaPackageOriginURL"] = "%s" % (
+                mp_endpoint["Attributes"]['OriginEndpointUrl']
+            )
+            event["ResourceProperties"]["VideoContentSourceUrl"] = "%s" % (
+                mp_endpoint["Attributes"]["OriginEndpointUrl"].replace("index.m3u8", '')
+            )
             debug("Media Endpoint: {}".format(mp_endpoint))
             debug("Event + MediaPackage Endpoint: {}".format(event))
 
@@ -63,15 +69,14 @@ def event_create(event, context):
         ml_input = medialive_input.event_handler(event, context)
         if ml_input["Status"] == "SUCCESS":
             event["ResourceProperties"]["MediaLiveInputId"] = "%s" % ml_input['Attributes']['Id']
-            event["ResourceProperties"]["MediaLiveInputARN"] = "%s" % ml_input['Attributes']['Arn']
-
+            event["pipeline"]['medialive']["ML_InputARN"] = "%s" % ml_input['Response']['Input']['Arn']
             debug("MediaLive Input: {}".format(ml_input))
             debug("Event + MediaLive Input: {}".format(event))
 
         ml_channel = medialive_channel.event_handler(event, context)
         if ml_channel['Status'] == 'SUCCESS':
             event["ResourceProperties"]["MediaLiveChannelId"] = "%s" % ml_channel['Attributes']
-
+            event["pipeline"]['medialive']['ML_ARN'] = ml_channel['Response']['Channel']['Arn']
             debug("MediaLive Result: {}".format(ml_channel))
             debug("Event + MediaLive: {}".format(event))
 
@@ -79,7 +84,7 @@ def event_create(event, context):
         mt_config = mediatailor_configuration.event_handler(event, context)
         if mt_config['Status'] == 'SUCCESS':
             event["ResourceProperties"]["MediaTailorHlsUrl"] = "%s" % mt_config['Attributes']
-
+            event['pipeline']['mediatailor'] = mt_config['Response']['PlaybackConfigurationArn']
             debug("MediaTailor Configuration: {}".format(mt_config))
             debug("Event + MediaTailor {}".format(event))
 
@@ -94,7 +99,9 @@ def debug(message):
 
 def out_to_file(event, context):
     current_time = datetime.datetime.now().strftime("%H-%M")
-    filename = '%s-%s_%s.json' % (event["ResourceProperties"]["StackName"], event["LogicalResourceId"], current_time)
+    filename = '%s_%s.json' % (
+        event["Name"], current_time
+    )
     debug('Json Output Filename: %s' % filename)
 
     with open(filename, 'w') as outfile:
@@ -123,4 +130,3 @@ if __name__ == "__main__":
 
     if event['RequestType'] == 'Delete':
         event_delete(event, context)
-

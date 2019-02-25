@@ -59,10 +59,11 @@ def create_channel(medialive, event, context, auto_id=True):
         destinations = event['ResourceProperties']['MP_Endpoints']
         resource_tools.debug("ML Destinations are: %s" % destinations)
 
-        response = create_live_channel(event["ResourceProperties"]["MediaLiveInputId"], channel_id, event["ResourceProperties"]["Resolutions"],
-                                         destinations, event["ResourceProperties"]["MediaLiveAccessRoleArn"], medialive)
-
-        resource_tools.debug("MediaLive Channel: %s" % response)
+        response = create_live_channel(
+            event["ResourceProperties"]["MediaLiveInputId"], channel_id,
+            event["ResourceProperties"]["Resolutions"],destinations,
+            event["ResourceProperties"]["MediaLiveAccessRoleArn"], medialive
+        )
 
         attributes = response['Channel']['Id']
 
