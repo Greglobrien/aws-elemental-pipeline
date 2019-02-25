@@ -56,14 +56,7 @@ def create_channel(medialive, event, context, auto_id=True):
 
     try:
 
-        destinations = {
-            'p_url': event["ResourceProperties"]["PackagerPrimaryChannelUrl"],
-            'p_u': event["ResourceProperties"]["PackagerPrimaryChannelUsername"],
-            'p_p': event["ResourceProperties"]["PackagerPrimaryChannelPassword"],
-            'b_url': event["ResourceProperties"]["PackagerSecondaryChannelUrl"],
-            'b_u': event["ResourceProperties"]["PackagerSecondaryChannelUsername"],
-            'b_p': event["ResourceProperties"]["PackagerSecondaryChannelPassword"]
-        }
+        destinations = event['ResourceProperties']['MP_Endpoints']
         resource_tools.debug("ML Destinations are: %s" % destinations)
 
         response = create_live_channel(event["ResourceProperties"]["MediaLiveInputId"], channel_id, event["ResourceProperties"]["Resolutions"],
@@ -395,10 +388,10 @@ def create_live_channel(input_id, channel_name, layers, destinations, arn, media
         Destinations=[{
             'Id': 'destination1',
             'Settings': [
-                {'Url': destinations['p_url'], 'Username': destinations['p_u'],
-                    'PasswordParam': destinations['p_p']},
-                {'Url': destinations['b_url'], 'Username': destinations['b_u'],
-                    'PasswordParam': destinations['b_p']},
+                {'Url': destinations[0]['Url'], 'Username': destinations[0]['Username'],
+                    'PasswordParam': destinations[0]['Password']},
+                {'Url': destinations[1]['Url'], 'Username': destinations[1]['Username'],
+                    'PasswordParam': destinations[1]['Password']},
 
             ]
         }],

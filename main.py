@@ -28,24 +28,24 @@ def event_create(event, context):
     if ('mediapackage'in event['pipeline']):
         mp_channel = mediapackage_channel.event_handler(event, context)
         if mp_channel["Status"] == "SUCCESS":
-            event["ResourceProperties"]["PackagerPrimaryChannelUrl"] = "%s" % mp_channel["Attributes"][0]["Url"]
-            event["ResourceProperties"]["PackagerPrimaryChannelUsername"] = "%s" % mp_channel["Attributes"][0]["Username"]
-            event["ResourceProperties"]["PackagerPrimaryChannelPassword"] = "%s" % mp_channel["Attributes"][0]["Password"]
-            event["ResourceProperties"]["PackagerSecondaryChannelUrl"] = "%s" % mp_channel["Attributes"][1]["Url"]
-            event["ResourceProperties"]["PackagerSecondaryChannelUsername"] = "%s" % mp_channel["Attributes"][1]["Username"]
-            event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = "%s" % mp_channel["Attributes"][1]["Password"]
-            event["ResourceProperties"]["ChannelId"] = "%s-%s" % (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
+            event["ResourceProperties"]["MP_Endpoints"] = mp_channel["Attributes"]
+            event["ResourceProperties"]["ChannelId"] = "%s-%s" % (
+                event['ResourceProperties']['StackName'], event["LogicalResourceId"]
+            )
             event["ResourceProperties"]["MediaPackgeARN"] = "%s" % mp_channel["Response"]["Arn"]
 
             debug("MediaPackage Channel: {}".format(mp_channel))
             debug("Event + MediaPackage: {}".format(event))
 
-        passwords = resource_tools.ssm_a_password(event, mp_channel)
+
+        passwords = resource_tools.ssm_a_password(event, context)
         if passwords['Status'] == 'SUCCESS':
-            event["ResourceProperties"]["PackagerPrimaryChannelPassword"] = '/medialive/%s-%s-0' % (
-            event['ResourceProperties']['StackName'], event["LogicalResourceId"])
-            event["ResourceProperties"]["PackagerSecondaryChannelPassword"] = '/medialive/%s-%s-1' % (
-            event['ResourceProperties']['StackName'], event["LogicalResourceId"])
+            event["ResourceProperties"]["MP_Endpoints"][0]["Password"] = '/medialive/%s-%s-0' % (
+                event['ResourceProperties']['StackName'], event["LogicalResourceId"]
+            )
+            event["ResourceProperties"]["MP_Endpoints"][1]["Password"] = '/medialive/%s-%s-1' % (
+                event['ResourceProperties']['StackName'], event["LogicalResourceId"]
+            )
 
             debug("Passwords Result: {}".format(passwords))
             debug("Event + Password Params: {}".format(event))

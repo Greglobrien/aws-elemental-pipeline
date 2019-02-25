@@ -81,34 +81,34 @@ def wait_for_input_states(medialive, input_id, states):
     return current_state
 
 
-def ssm_a_password(event, mp_channel):
+def ssm_a_password(event, context):
     ssm = boto3.client('ssm')
     if event["RequestType"] == "Create":
-        for index, key in enumerate(mp_channel["Attributes"]):
+        responses = []
+        for index, key in enumerate(event["ResourceProperties"]["MP_Endpoints"]):
+            print('ssm_a_password %s' % event["ResourceProperties"]["MP_Endpoints"][index]["Password"])
             response = ssm.put_parameter(
                 Name='/medialive/%s-%s-%s'% (event['ResourceProperties']['StackName'], event["LogicalResourceId"], index),
                 Description='{}'.format(event["LogicalResourceId"]),
-                Value='{}'.format(mp_channel["Attributes"][index]["Password"]),
+                Value='{}'.format(event["ResourceProperties"]["MP_Endpoints"][index]["Password"]),
                 Type='SecureString',
                 KeyId='alias/aws/ssm',
                 Overwrite=True
             )
-            debug("SSM_a_Password: %s " % response)
-            print(index, key)
+            debug("ssm_a_password: %s - %s" % (index,response))
+            responses.append(response)
 
             if (index == 1) and (response['ResponseMetadata']['HTTPStatusCode'] == 200):
                 result = {
                     'Status': 'SUCCESS',
-                    'Data': {
-                        'PackagerPrimaryChannelPassword': '/medialive/%s-%s-0' % (event['ResourceProperties']['StackName'], event["LogicalResourceId"]),
-                        'PackagerSecondaryChannelPassword':'/medialive/%s-%s-1' % (event['ResourceProperties']['StackName'], event["LogicalResourceId"])
-                    }
+                    'Data': {},
+                    'Response': responses
                 }
     if event["RequestType"] == "Delete":
         result = ssm.delete_parameters(
             Names=[
-                event["ResourceProperties"]["PackagerPrimaryChannelPassword"],
-                event["ResourceProperties"]["PackagerSecondaryChannelPassword"]
+                event["ResourceProperties"]["MP_Endpoints"][0]["Password"],
+                event["ResourceProperties"]["MP_Endpoints"][1]["Password"]
             ]
         )
 
