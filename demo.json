@@ -4,6 +4,11 @@
   "LogicalResourceId": "2019-02-16",
   "Debug": "ON",
   "State": "OFF",
+  "pipeline": {
+    "mediapackage": {},
+    "medialive": {},
+    "mediatailor": {}
+  },
   "ResourceProperties": {
       "StackName": "DEV",
       "MediaLiveAccessRoleArn": "<AMAZON MEDIA LIVE ROLE ARN>",
