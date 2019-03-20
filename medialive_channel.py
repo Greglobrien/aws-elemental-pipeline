@@ -399,6 +399,14 @@ def create_live_channel(input_id, channel_name, layers, destinations, arn, media
         EncoderSettings={
             'AudioDescriptions': audio_descriptions,
             'CaptionDescriptions': captions,
+            'AvailConfiguration': {
+                'AvailSettings': {
+                    'Scte35TimeSignalApos': {
+                        'NoRegionalBlackoutFlag': 'FOLLOW',
+                        'WebDeliveryAllowedFlag': 'FOLLOW'
+                    }
+                }
+            },
             'OutputGroups': [
                 {
                     "OutputGroupSettings": {
@@ -441,6 +449,7 @@ def create_live_channel(input_id, channel_name, layers, destinations, arn, media
                             "ProgramDateTime": "EXCLUDE",
                             "ProgramDateTimePeriod": 600,
                             "RedundantManifest": "DISABLED",
+                            'MinSegmentLength': 2,
                             "SegmentLength": 6,
                             "SegmentationMode": "USE_SEGMENT_DURATION",
                             "SegmentsPerSubdirectory": 10000,
@@ -462,5 +471,3 @@ def create_live_channel(input_id, channel_name, layers, destinations, arn, media
     )
     return channel_resp
     # return 'true'
-
-
