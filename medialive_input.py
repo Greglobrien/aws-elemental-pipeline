@@ -39,7 +39,7 @@ def event_handler(event, context):
         }
     if 'ResponseURL' in event:
         resource_tools.send(event, context, result['Status'],
-                        result['Data'], result['ResourceId'])
+                            result['Data'], result['ResourceId'])
     return result
 
 
@@ -54,12 +54,22 @@ def create_input(medialive, event, context, auto_id=True):
     else:
         input_id = event["PhysicalResourceId"]
 
+    if "mediaConnectFlows" in event["pipeline"]["medialive"]:
+        request = {"Name": input_id,
+                   "Type": event["ResourceProperties"]["InputType"],
+                   "MediaConnectFlows": event["pipeline"]["medialive"]["mediaConnectFlows"],
+                   "RoleArn": event["ResourceProperties"]["MediaLiveAccessRoleArn"],
+                   "Tags": event["AssetTags"]
+                   }
+    else:
+        request = {"Name": input_id,
+                   "Type": event["ResourceProperties"]["InputType"],
+                   "InputSecurityGroups": event["ResourceProperties"]["InputSecurityGroup"],
+                   "Tags": event["AssetTags"]
+                   }
+
     try:
-        response = medialive.create_input(
-            Name=input_id,
-            Type="%s" % event["ResourceProperties"]["InputType"],
-            InputSecurityGroups = event["ResourceProperties"]["InputSecurityGroup"]
-        )
+        response = medialive.create_input(**request)
 
         print(json.dumps(response))
 
