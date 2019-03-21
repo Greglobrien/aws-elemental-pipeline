@@ -27,7 +27,7 @@ def event_delete(event, context):
 
     if ('mediatailor' in event['pipeline']):
         mediatailor_configuration.event_handler(event, context)
-
+    print("Delete Complete")
 
 def event_create(event, context):
 
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     if ((event['RequestType'] == 'Create') and (resource_tools.does_exist(event, context) == False)):
         create = event_create(event, context)
         out_to_file(create, context)
-        print("done")
+        print("Create Done")
 
     if event['RequestType'] == 'Delete':
         event_delete(event, context)
