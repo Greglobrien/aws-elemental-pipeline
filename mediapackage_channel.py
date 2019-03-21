@@ -63,7 +63,8 @@ def create_channel(mediapackage, event, context, auto_id=True):
     try:
         response = mediapackage.create_channel(
             Id=channel_id,
-            Description="%s" % event["StackId"]
+            Description="%s" % event["StackId"],
+            Tags=event["AssetTags"]
         )
         #print(json.dumps(response))
         attributes = response['HlsIngest']['IngestEndpoints']

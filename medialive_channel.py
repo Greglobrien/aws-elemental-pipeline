@@ -62,7 +62,7 @@ def create_channel(medialive, event, context, auto_id=True):
         response = create_live_channel(
             event["ResourceProperties"]["MediaLiveInputId"], channel_id,
             event["ResourceProperties"]["Resolutions"],destinations,
-            event["ResourceProperties"]["MediaLiveAccessRoleArn"], medialive
+            event["ResourceProperties"]["MediaLiveAccessRoleArn"], medialive, event
         )
 
         attributes = response['Channel']['Id']
@@ -318,7 +318,7 @@ def audio_only():
     }
     return audio_only
 
-def create_live_channel(input_id, channel_name, layers, destinations, arn, medialive):
+def create_live_channel(input_id, channel_name, layers, destinations, arn, medialive, event):
     video_descriptions = []
     outputs = []
     captions = []
@@ -467,7 +467,9 @@ def create_live_channel(input_id, channel_name, layers, destinations, arn, media
                 'Source': 'EMBEDDED'
             },
             'VideoDescriptions': video_descriptions
-        }
+        },
+        Tags=event["AssetTags"]
+
     )
     return channel_resp
     # return 'true'

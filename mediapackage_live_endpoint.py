@@ -74,7 +74,8 @@ def create_endpoint(mediapackage, event, context, auto_id=True):
                 "StreamSelection": {
                     "StreamOrder": "original"
                 }
-            }
+            },
+            Tags=event["AssetTags"]
         )
         resource_tools.debug("MediaPackage Live Endpoint: %s " % response)
         attributes = {

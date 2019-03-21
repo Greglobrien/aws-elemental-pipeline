@@ -70,7 +70,8 @@ def create_configuration(mediatailor, event, context, auto_id=True):
             },
             SlateAdUrl = event["ResourceProperties"]["SlateAdUrl"],
             TranscodeProfileName = event["ResourceProperties"]["TranscodeProfileName"],
-            VideoContentSourceUrl = event["ResourceProperties"]["VideoContentSourceUrl"]
+            VideoContentSourceUrl = event["ResourceProperties"]["VideoContentSourceUrl"],
+            Tags=event["AssetTags"]
         )
         resource_tools.debug("MediaTailor Configuration: %s " % response)
 
