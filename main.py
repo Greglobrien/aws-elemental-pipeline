@@ -7,10 +7,21 @@ import resource_tools
 import datetime
 import json
 import sys
+import logging
 
 ##NOTES:
 #### Use %s instead of {} when working with Json
 #### https://stackoverflow.com/questions/22296496/add-element-to-a-json-in-python
+
+log_level = "warning"
+log_level = log_level.upper()  ## set log level to upper case
+
+##works with AWS Logger: https://stackoverflow.com/questions/10332748/python-logging-setlevel
+logger = logging.getLogger()
+level = logging.getLevelName(log_level)
+logger.setLevel(level)
+
+
 
 
 def event_delete(event, context):
@@ -39,8 +50,9 @@ def event_create(event, context):
                 event['ResourceProperties']['StackName'], event["LogicalResourceId"]
             )
             event["ResourceProperties"]["MP_ARN"] = "%s" % mp_channel["Response"]["Arn"]
-            debug("MediaPackage Channel: {}".format(mp_channel))
-            debug("Event + MediaPackage: {}".format(event))
+            logger.warning("Successfully Created MediaPackage Channel")
+            logger.error("MediaPackage Channel: {}".format(mp_channel))
+            logger.debug("Event + MediaPackage: {}".format(event))
 
         passwords = resource_tools.ssm_a_password(event, context)
         if passwords['Status'] == 'SUCCESS':
@@ -50,8 +62,9 @@ def event_create(event, context):
             event["ResourceProperties"]["MP_Endpoints"][1]["Password"] = '/medialive/%s-%s-1' % (
                 event['ResourceProperties']['StackName'], event["LogicalResourceId"]
             )
-            debug("Passwords Result: {}".format(passwords))
-            debug("Event + Password Params: {}".format(event))
+            logger.warning("Successfully Keystored Passwords")
+            logger.error("Passwords Result: {}".format(passwords))
+            logger.debug("Event + Password Params: {}".format(event))
 
         mp_endpoint = mediapackage_live_endpoint.event_handler(event, context)
         if mp_endpoint["Status"] == "SUCCESS":
@@ -61,8 +74,9 @@ def event_create(event, context):
             event["ResourceProperties"]["VideoContentSourceUrl"] = "%s" % (
                 mp_endpoint["Attributes"]["OriginEndpointUrl"].replace("index.m3u8", '')
             )
-            debug("Media Endpoint: {}".format(mp_endpoint))
-            debug("Event + MediaPackage Endpoint: {}".format(event))
+            logger.warning("Successfully Created MediaPackage Endpoint")
+            logger.error("Media Endpoint: {}".format(mp_endpoint))
+            logger.debug("Event + MediaPackage Endpoint: {}".format(event))
 
 
     if ('medialive'in event['pipeline']):
@@ -70,31 +84,34 @@ def event_create(event, context):
         if ml_input["Status"] == "SUCCESS":
             event["ResourceProperties"]["MediaLiveInputId"] = "%s" % ml_input['Attributes']['Id']
             event["pipeline"]['medialive']["ML_InputARN"] = "%s" % ml_input['Response']['Input']['Arn']
-            debug("MediaLive Input: {}".format(ml_input))
-            debug("Event + MediaLive Input: {}".format(event))
+            logger.warning("Successfully Created ML Input")
+            logger.error("MediaLive Input: {}".format(ml_input))
+            logger.debug("Event + MediaLive Input: {}".format(event))
 
         ml_channel = medialive_channel.event_handler(event, context)
         if ml_channel['Status'] == 'SUCCESS':
             event["ResourceProperties"]["MediaLiveChannelId"] = "%s" % ml_channel['Attributes']
             event["pipeline"]['medialive']['ML_ARN'] = ml_channel['Response']['Channel']['Arn']
-            debug("MediaLive Result: {}".format(ml_channel))
-            debug("Event + MediaLive: {}".format(event))
+            logger.warning("Successfully Created MediaLive Channel")
+            logger.error("MediaLive Result: {}".format(ml_channel))
+            logger.debug("Event + MediaLive: {}".format(event))
 
     if ('mediatailor'in event['pipeline']):
         mt_config = mediatailor_configuration.event_handler(event, context)
         if mt_config['Status'] == 'SUCCESS':
             event["ResourceProperties"]["MediaTailorHlsUrl"] = "%s" % mt_config['Attributes']
             event['pipeline']['mediatailor'] = mt_config['Response']['PlaybackConfigurationArn']
-            debug("MediaTailor Configuration: {}".format(mt_config))
-            debug("Event + MediaTailor {}".format(event))
+            logger.warning("Successfully Created MediaTailor Configuration")
+            logger.error("MediaTailor Configuration: {}".format(mt_config))
+            logger.debug("Event + MediaTailor {}".format(event))
 
     return event
 
-def debug(message):
-    if event['Debug'] == "ON":
-        print(('----->  %s') % str(message))
-        print('######################################################\n')
-
+# def debug(message):
+#     if event['Debug'] == "ON":
+#         print(('----->  %s') % str(message))
+#         print('######################################################\n')
+#
 
 
 def out_to_file(event, context):
@@ -102,7 +119,7 @@ def out_to_file(event, context):
     filename = '%s_%s.json' % (
         event["Name"], current_time
     )
-    debug('Json Output Filename: %s' % filename)
+    logger.debug('Json Output Filename: %s' % filename)
 
     with open(filename, 'w') as outfile:
         #https://stackoverflow.com/questions/12309269/how-do-i-write-json-data-to-a-file
@@ -119,7 +136,7 @@ if __name__ == "__main__":
 
     with open(filename) as json_file:
         event = json.load(json_file)
-        debug('Initial Event: %s' % event)
+        logger.warning('Initial Event: %s' % event)
 
     context = 0
 
