@@ -138,7 +138,7 @@ def alarm_type2 (event, sns, index):
 
 
 def create_alerts(cloudwatch, event, context):
-    sns = "***REMOVED***"
+    sns = event["ResourceProperties"]["cloudwatchSNS"]
     alarm_list = []
     audio_0 = alarm_type1(event, sns, "0")
     audio_resp_0 = call_cloudwatch(cloudwatch, audio_0)
