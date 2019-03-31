@@ -138,7 +138,7 @@ def alarm_type2 (event, sns, index):
 
 
 def create_alerts(cloudwatch, event, context):
-    sns = "arn:aws:sns:us-west-2:214701642081:go-dev-account"
+    sns = event["ResourceProperties"]["cloudwatchSNS"]
     alarm_list = []
     audio_0 = alarm_type1(event, sns, "0")
     audio_resp_0 = call_cloudwatch(cloudwatch, audio_0)
