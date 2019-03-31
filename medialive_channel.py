@@ -65,6 +65,7 @@ def create_channel(medialive, event, context, auto_id=True):
             event["ResourceProperties"]["MediaLiveAccessRoleArn"], medialive, event
         )
 
+        resource_tools.debug("Create_live_channel %s" % response)
         attributes = response['Channel']['Id']
 
         result = {
@@ -349,10 +350,10 @@ def create_live_channel(input_id, channel_name, layers, destinations, arn, media
     #audio2 = get_audio_descriptions(only)
     #audio_descriptions.append(audio2)
 
-    print(outputs)
+    #print(outputs)
     print("##############################################")
 
-    print(captions)
+    #print(captions)
     print("##############################################")
 
     channel_resp = medialive.create_channel(
